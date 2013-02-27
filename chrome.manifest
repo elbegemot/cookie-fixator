@@ -1,0 +1,8 @@
+content     cookie-fixator    chrome/content/
+content     cookie-fixator    chrome/content/ contentaccessible=yes
+overlay chrome://browser/content/browser.xul chrome://cookie-fixator/content/overlay.xul
+
+locale	cookie-fixator en-US	locale/en-US/
+
+skin	cookie-fixator	classic/1.0	skin/
+style	chrome://global/content/customizeToolbar.xul	chrome://cookie-fixator/skin/skin.css

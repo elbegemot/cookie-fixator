@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="chrome://cookie-fixator/skin/skin.css" type="text/css"?>
+<overlay id="cookie-fixator-overlay"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+         
+	<script src="fixator.js" />
+	  
+	<statusbar id="status-bar">
+		<statusbarpanel id="cookie-fixator-status-bar-icon" label="Cookie Fixator Label" >
+			<label id="cookie-fixator-label" value=""/>
+		</statusbarpanel>
+	</statusbar>
+
+</overlay>
+
+
+

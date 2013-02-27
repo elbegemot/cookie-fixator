@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  <Description about="urn:mozilla:install-manifest">
+	<em:id>cookie-fixator.elbegemot@gmail.com</em:id>
+	<em:name>Cookie Fixator</em:name>
+	<em:version>0.1</em:version>
+	<em:type>2</em:type>
+    <em:unpack>true</em:unpack>
+	<em:creator>Sergey Kurtenko</em:creator>
+	<em:description>Restore configured coockie value after clearing manualy by user</em:description>
+	<em:targetApplication>
+		<Description>
+			<em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+			<em:minVersion>17.*</em:minVersion>
+			<em:maxVersion>20.*</em:maxVersion>
+		</Description>
+	</em:targetApplication>
+  </Description>
+</RDF>
