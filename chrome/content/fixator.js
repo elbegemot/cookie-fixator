@@ -11,7 +11,7 @@ var fixator = (function() {
 
 		progressListinner : {
 			onLocationChange : function(aProgress, aRequest, aURI) {
-				fixator.checkCoockie();
+				fixator.checkCoockie(aURI);
 			},
 			onStateChange : function() {
 			},
@@ -23,19 +23,28 @@ var fixator = (function() {
 			}
 		},
 
-		checkCoockie : function() {
+		checkCoockie : function(uri) {
 			Application.console.log("[INFO] fixator checkCoockie");
 
-			var ios = Components.classes["@mozilla.org/network/io-service;1"]
-					.getService(Components.interfaces.nsIIOService);
-			var uri = ios.newURI("http://www.ya.ru/", null, null);
-
-			var cookie = COOCKIE_SERVICE.getCookieString(uri, null);
-
-			Application.console.log("[INFO] fixator cookie=" + cookie);
-
 			// find coockie for domains and set it such not exists
+			var strCoockie = this.cookieConfig.name + "="
+					+ this.cookieConfig.value;
 
+			for (var i = 0; i < this.uriCache.length; i++) {
+				var uri = this.uriCache[i];
+				var str = this.COOCKIE_SERVICE.getCookieString(uri, null);
+
+				if (str == null || str.indexOf(strCoockie)) {
+					this.COOCKIE_SERVICE.setCookieString(uri, null, strCoockie,
+							null);
+					Application.console.log('[INFO] fixator created coockie '
+							+ strCoockie + ' for ' + uri.host);
+				} else {
+					Application.console.log('[INFO] fixator finded coockie '
+							+ str + ' for ' + uri.host);
+				}
+
+			}
 		},
 
 		changeStatuesLabel : function(text) {
@@ -90,7 +99,7 @@ var fixator = (function() {
 			}
 
 			Application.console.log('[INFO] fixator uriCache initialized with'
-					+ this.uriCache + ' uris');
+					+ this.uriCache.length + ' uris');
 		},
 
 		initCoockies : function() {
