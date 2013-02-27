@@ -6,6 +6,8 @@ var fixator = (function() {
 
 		cookieConfig : {},
 		uriCache : [],
+		COOCKIE_SERVICE : Components.classes["@mozilla.org/cookieService;1"]
+				.getService(Components.interfaces.nsICookieService),
 
 		progressListinner : {
 			onLocationChange : function(aProgress, aRequest, aURI) {
@@ -27,11 +29,12 @@ var fixator = (function() {
 			var ios = Components.classes["@mozilla.org/network/io-service;1"]
 					.getService(Components.interfaces.nsIIOService);
 			var uri = ios.newURI("http://www.ya.ru/", null, null);
-			var cookieSvc = Components.classes["@mozilla.org/cookieService;1"]
-					.getService(Components.interfaces.nsICookieService);
-			var cookie = cookieSvc.getCookieString(uri, null);
+
+			var cookie = COOCKIE_SERVICE.getCookieString(uri, null);
 
 			Application.console.log("[INFO] fixator cookie=" + cookie);
+
+			// find coockie for domains and set it such not exists
 
 		},
 
@@ -50,22 +53,58 @@ var fixator = (function() {
 
 			this.readPreferences();
 
+			this.changeStatuesLabel("STARTED");
+
 			this.initCacheValues();
 
-			this.changeStatuesLabel("STARTED");
+			this.initCoockies();
 		},
 
 		initCacheValues : function() {
-			// read all domians and creae uri for them
+			// read all domians and create uri for them
+			var ios = Components.classes["@mozilla.org/network/io-service;1"]
+					.getService(Components.interfaces.nsIIOService);
 
 			// '{"name":"coockie_name", "value":"coockie_value",
 			// "domains":["somedoman.com"]}'
+			this.uriCache = []
 			if (this.cookieConfig.domains) {
-				Application.console
-						.log('[INFO] fixator this.cookieConfig.domains='
-								+ this.cookieConfig.domains);
+				// create uri fore each domain
+				for (var i = 0; i < this.cookieConfig.domains.length; i++) {
+
+					var domain = this.cookieConfig.domains[i];
+					var url = "http://" + domain;
+					try {
+						var uri = ios.newURI(url, null, null);
+						this.uriCache.push(uri);
+						Application.console
+								.log('[INFO] fixator initCacheValues uri='
+										+ uri.prePath);
+					} catch (e) {
+						Application.console
+								.log('[WARN] fixator initCacheValues can\'t create uri for domain='
+										+ domain);
+					}
+
+				}
 			}
-			
+
+			Application.console.log('[INFO] fixator uriCache initialized with'
+					+ this.uriCache + ' uris');
+		},
+
+		initCoockies : function() {
+			var strCoockie = this.cookieConfig.name + "="
+					+ this.cookieConfig.value;
+
+			for (var i = 0; i < this.uriCache.length; i++) {
+				var uri = this.uriCache[i];
+				this.COOCKIE_SERVICE.setCookieString(uri, null, strCoockie,
+						null);
+
+				Application.console.log('[INFO] fixator created coockie '
+						+ strCoockie + ' for ' + uri.host);
+			}
 		},
 
 		readPreferences : function() {
