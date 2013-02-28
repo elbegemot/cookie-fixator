@@ -8,8 +8,6 @@ var fixator = (function() {
 		uriCache : [],
 		COOCKIE_SERVICE : Components.classes["@mozilla.org/cookieService;1"]
 				.getService(Components.interfaces.nsICookieService),
-		ETLD_SERVICE : Components.classes["@mozilla.org/network/effective-tld-service;1"]
-				.getService(Components.interfaces.nsIEffectiveTLDService),
 
 		progressListinner : {
 			onLocationChange : function(aProgress, aRequest, aURI) {
@@ -23,16 +21,6 @@ var fixator = (function() {
 			},
 			onSecurityChange : function() {
 			}
-		},
-
-		getBaseDomain : function() {
-			var suffix = ETLD_SERVICE.getPublicSuffix(aURI);
-			var basedomain = ETLD_SERVICE.getBaseDomain(aURI); // this includes
-			// the TLD
-			basedomain = basedomain.substr(0, (basedomain.length
-							- suffix.length - 1)); // - 1 to remove the period
-			// before the tld
-			return basedomain;
 		},
 
 		checkCoockie : function(aUri) {
