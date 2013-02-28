@@ -8,6 +8,8 @@ var fixator = (function() {
 		uriCache : [],
 		COOCKIE_SERVICE : Components.classes["@mozilla.org/cookieService;1"]
 				.getService(Components.interfaces.nsICookieService),
+		ETLD_SERVICE : Components.classes["@mozilla.org/network/effective-tld-service;1"]
+				.getService(Components.interfaces.nsIEffectiveTLDService),
 
 		progressListinner : {
 			onLocationChange : function(aProgress, aRequest, aURI) {
@@ -23,8 +25,21 @@ var fixator = (function() {
 			}
 		},
 
-		checkCoockie : function(uri) {
+		getBaseDomain : function() {
+			var suffix = ETLD_SERVICE.getPublicSuffix(aURI);
+			var basedomain = ETLD_SERVICE.getBaseDomain(aURI); // this includes
+			// the TLD
+			basedomain = basedomain.substr(0, (basedomain.length
+							- suffix.length - 1)); // - 1 to remove the period
+			// before the tld
+			return basedomain;
+		},
+
+		checkCoockie : function(aUri) {
 			Application.console.log("[INFO] fixator checkCoockie");
+
+			// reset label
+			this.changeStatuesLabel('');
 
 			// find coockie for domains and set it such not exists
 			var strCoockie = this.cookieConfig.name + "="
@@ -34,7 +49,7 @@ var fixator = (function() {
 				var uri = this.uriCache[i];
 				var str = this.COOCKIE_SERVICE.getCookieString(uri, null);
 
-				if (str == null || str.indexOf(strCoockie)) {
+				if (str == null || str.indexOf(strCoockie) == -1) {
 					this.COOCKIE_SERVICE.setCookieString(uri, null, strCoockie,
 							null);
 					Application.console.log('[INFO] fixator created coockie '
@@ -44,15 +59,26 @@ var fixator = (function() {
 							+ str + ' for ' + uri.host);
 				}
 
+				if (uri.prePath == aUri.prePath) {
+					// check again and show results to user
+					var checkValue = this.COOCKIE_SERVICE.getCookieString(aUri,
+							null);
+					if (checkValue != null
+							&& checkValue.indexOf(strCoockie) != -1) {
+						this.changeStatuesLabel(strCoockie);
+					} else {
+						this.changeStatuesLabel("NOT_SET");
+					}
+				}
 			}
+
 		},
 
 		changeStatuesLabel : function(text) {
 			Application.console
 					.log('[INFO] fixator update status label with value='
 							+ text);
-			document.getElementById("cookie-fixator-label").value = "Fixed coockie:"
-					+ text;
+			document.getElementById("cookie-fixator-label").value = text;
 		},
 
 		init : function() {
